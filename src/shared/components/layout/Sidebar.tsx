@@ -1,0 +1,83 @@
+import { useNavStore, type Page } from '@shared/stores/navStore'
+import { useCollectionsStore } from '@shared/stores/collectionsStore'
+
+const NAV_ITEMS: { id: Page; label: string; icon: JSX.Element }[] = [
+  {
+    id: 'generate',
+    label: 'Generate',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+      </svg>
+    )
+  },
+  {
+    id: 'models',
+    label: 'Models',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+      </svg>
+    )
+  },
+  {
+    id: 'workspace',
+    label: 'Workspace',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <rect x="14" y="14" width="7" height="7" rx="1" />
+      </svg>
+    )
+  },
+  {
+    id: 'settings',
+    label: 'Settings',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+      </svg>
+    )
+  }
+]
+
+export default function Sidebar(): JSX.Element {
+  const { currentPage, navigate } = useNavStore()
+  const workspaceCount = useCollectionsStore((s) =>
+    s.collections.find((c) => c.id === s.activeCollectionId)?.jobs.length ?? 0
+  )
+
+  return (
+    <aside className="flex flex-col w-14 bg-surface-500 border-r border-zinc-800 py-2">
+      {NAV_ITEMS.map((item) => {
+        const active = currentPage === item.id
+        const badge = item.id === 'workspace' && workspaceCount > 0 ? workspaceCount : null
+        return (
+          <button
+            key={item.id}
+            title={item.label}
+            onClick={() => navigate(item.id)}
+            className={`
+              relative flex flex-col items-center justify-center gap-1 h-12 mx-1 my-0.5 rounded
+              transition-colors text-[9px] leading-none
+              ${active
+                ? 'bg-accent/20 text-accent-light'
+                : 'text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800'}
+            `}
+          >
+            {item.icon}
+            {item.label}
+            {badge !== null && (
+              <span className="absolute top-1 right-1 min-w-[14px] h-[14px] px-0.5 rounded-full bg-accent text-white text-[8px] font-bold flex items-center justify-center leading-none">
+                {badge > 99 ? '99+' : badge}
+              </span>
+            )}
+          </button>
+        )
+      })}
+    </aside>
+  )
+}
